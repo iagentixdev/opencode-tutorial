@@ -627,7 +627,155 @@ openspec update
 # Configurar perfil (default o expanded)
 openspec config profile
 
-# Ver estado
+---
+
+## 🎯 OpenCode Goal Plugin — Modo Goal Persistente
+
+**@prevalentware/opencode-goal-plugin** agrega modo goal estilo Codex a OpenCode: un objetivo persistente que el AI persigue hasta completarlo, con auto-continuation, evidencia de cierre y safety limits.
+
+> Repo: [github.com/prevalentWare/opencode-goal-plugin](https://github.com/prevalentWare/opencode-goal-plugin) · npm: `@prevalentware/opencode-goal-plugin`
+
+### ❓ ¿Para qué sirve?
+
+Sin goals, OpenCode responde un prompt y se detiene. Con el Goal Plugin:
+
+- ✅ **Objetivo persistente** — el AI trabaja hacia un goal hasta completarlo o bloquearse
+- ✅ **Auto-continuation** — cuando la sesión queda idle, el plugin sigue pidiendo avance
+- ✅ **Evidencia requerida** — no podés cerrar un goal sin mostrar evidencia concreta
+- ✅ **Persiste en compactación** — el goal sobrevive cuando OpenCode resume sesiones largas
+- ✅ **Safety limits** — budget de tokens, tiempo máximo, detección de no-progress
+- ✅ **Plan-mode seguro** — no se puede escapar de Plan mode vía goals
+
+### 📦 Instalación
+
+```bash
+# Local (proyecto actual)
+opencode plugin @prevalentware/opencode-goal-plugin
+
+# Global
+opencode plugin -g @prevalentware/opencode-goal-plugin
+```
+
+O manual en `opencode.json` y `tui.json`:
+
+```json
+{
+  "plugin": ["@prevalentware/opencode-goal-plugin"]
+}
+```
+
+### 🧠 Uso básico
+
+```bash
+/goal review the frontend and translate visible English UI text to Spanish
+```
+
+Esto crea un goal persistente. El AI va a:
+1. Empezar a trabajar en ello
+2. Cuando termine de responder, si hay más por hacer, el plugin lo reactiva
+3. Seguir hasta que el goal esté **completo** (con evidencia) o **unmet** (con blocker)
+
+### 📋 Comandos /goal
+
+| Comando | Descripción |
+|---------|-------------|
+| `/goal <objetivo>` | Crear un nuevo goal |
+| `/goal` | Ver estado del goal actual |
+| `/goal history` | Ver historial y checkpoints |
+| `/goal edit <objetivo>` | Actualizar el objetivo |
+| `/goal pause` | Pausar el goal sin borrarlo |
+| `/goal resume` | Reanudar goal pausado |
+| `/goal clear` | Borrar el goal (aliases: stop, off, reset, none, cancel) |
+
+### 🔧 Configuración avanzada
+
+```json
+{
+  "plugin": [
+    [
+      "@prevalentware/opencode-goal-plugin",
+      {
+        "auto_continue": true,
+        "defer_while_tasks_active": true,
+        "max_auto_turns": 25,
+        "min_continue_interval_seconds": 3,
+        "max_prompt_failures": 3,
+        "default_token_budget": 200000,
+        "max_goal_duration_seconds": 1800,
+        "no_progress_token_threshold": 50,
+        "max_no_progress_turns": 2,
+        "restricted_agents": ["plan"],
+        "allow_goal_execution_from_plan": false
+      }
+    ]
+  ]
+}
+```
+
+| Opción | Default | Descripción |
+|--------|---------|-------------|
+| `auto_continue` | `true` | Reactiva el AI cuando la sesión queda idle |
+| `defer_while_tasks_active` | `true` | Espera a que terminen tareas hijo antes de continuar |
+| `max_auto_turns` | `25` | Máximo de continuaciones automáticas por goal |
+| `min_continue_interval_seconds` | `3` | Intervalo mínimo entre continuaciones |
+| `max_prompt_failures` | `3` | Fallos antes de pausar auto-continuation |
+| `default_token_budget` | sin límite | Budget de tokens por goal |
+| `max_goal_duration_seconds` | sin límite | Duración máxima por goal (1800 = 30 min) |
+| `no_progress_token_threshold` | `50` | Output mínimo para considerar que hubo progreso |
+| `max_no_progress_turns` | `2` | Turns sin progreso antes de pausar |
+| `restricted_agents` | `["plan"]` | Agentes que no pueden ejecutar goals |
+| `allow_goal_execution_from_plan` | `false` | Permitir goals desde Plan mode |
+
+### 🛡️ Safety
+
+- Goals desde **Plan mode** arrancan pausados — no podés implementar sin cambiar a Build
+- **Auto-continuation** no funciona en Plan mode
+- No se puede **resumir** un goal desde Plan mode (evita prompt injection)
+- Las continuaciones quedan **ancladas al agente original** — nadie switchea el modo por atrás
+- Budget agotado → wrap-up prompt con handoff, no silencio infinito
+
+### 💾 Estado persistente
+
+El estado del goal se guarda en:
+```
+~/.local/share/opencode-goal-plugin/goals.json
+```
+
+Podés cambiarlo con la env:
+```bash
+export OPENCODE_GOAL_STATE_PATH=/ruta/personalizada/goals.json
+```
+
+### 🧩 Ejemplo: flujo completo
+
+```
+# 1. Arrancás un goal:
+/goal refactor the auth module to use JWT instead of sessions
+
+# 2. El AI arranca a laburar:
+→ Refactoring auth middleware...
+→ Updating login flow...
+→ Session idle → plugin reactiva
+→ Continued: updating tests...
+→ Continued: removing old session code...
+
+# 3. Cerrás con evidencia:
+/goal clear
+# El AI muestra: tests pass, old code removed, PR ready ✅
+```
+
+### 🚫 Si algo se bloquea
+
+```
+/goal clear
+# El AI documenta: bloqueado porque falta definir schema de JWT tokens
+```
+
+---
+
+## 🧩 Mejores Skills y MCP Servers para OpenCode
+
+### MCP Servers Recomendados# Ver estado
 openspec status
 ```
 

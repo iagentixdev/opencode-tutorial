@@ -1,0 +1,5 @@
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "theme": "catppuccin-mocha",
+  "plugin": ["@prevalentware/opencode-goal-plugin"]
+}

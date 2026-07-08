@@ -64,5 +64,9 @@
     }
   },
 
-  "autoCompact": true
+  "autoCompact": true,
+
+  "plugin": [
+    "@prevalentware/opencode-goal-plugin"
+  ]
 }
