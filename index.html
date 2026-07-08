@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenCode Tutorial</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface2: #334155;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent2: #818cf8;
+      --border: #334155;
+      --green: #34d399;
+      --red: #fb7185;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ─── Navbar ─── */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      height: 60px;
+      gap: 1rem;
+    }
+    .navbar .logo {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .navbar .logo span { color: var(--accent2); }
+    .navbar .nav-links {
+      margin-left: auto;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .navbar .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .navbar .nav-links a:hover { color: var(--accent); }
+    .navbar .badge {
+      background: var(--accent);
+      color: #0f172a;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    /* ─── Layout ─── */
+    .wrapper {
+      display: flex;
+      margin-top: 60px;
+      min-height: calc(100vh - 60px);
+    }
+
+    /* ─── Sidebar ─── */
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+      overflow-y: auto;
+      position: sticky;
+      top: 60px;
+      height: calc(100vh - 60px);
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 4px; }
+    .sidebar h3 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin: 1.5rem 0 0.5rem 0;
+    }
+    .sidebar h3:first-child { margin-top: 0; }
+    .sidebar a {
+      display: block;
+      padding: 0.3rem 0.75rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+    .sidebar a:hover, .sidebar a.active {
+      background: var(--surface);
+      color: var(--accent);
+    }
+
+    /* ─── Content ─── */
+    .content {
+      flex: 1;
+      padding: 2.5rem 3rem;
+      max-width: 900px;
+    }
+    .content h1 {
+      font-size: 2rem;
+      margin: 2rem 0 0.5rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border);
+      color: var(--accent);
+    }
+    .content h1:first-child { margin-top: 0; }
+    .content h2 { font-size: 1.5rem; margin: 2rem 0 0.75rem; color: var(--accent2); }
+    .content h3 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem; color: var(--text); }
+    .content p { margin: 0.75rem 0; color: var(--text-muted); }
+    .content strong { color: var(--text); }
+    .content a { color: var(--accent); text-decoration: none; }
+    .content a:hover { text-decoration: underline; }
+    .content ul, .content ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+    .content li { margin: 0.3rem 0; color: var(--text-muted); }
+    .content li strong { color: var(--text); }
+    .content blockquote {
+      border-left: 4px solid var(--accent);
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      background: var(--surface);
+      border-radius: 0 8px 8px 0;
+    }
+    .content blockquote p { margin: 0; }
+
+    /* ─── Code ─── */
+    .content code {
+      background: var(--surface2);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-size: 0.85em;
+    }
+    .content pre {
+      background: #0a0f1e;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+    }
+    .content pre code {
+      background: none;
+      padding: 0;
+      font-size: 0.85rem;
+      color: var(--green);
+    }
+    .content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    .content th, .content td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+    .content th { background: var(--surface); color: var(--accent); font-size: 0.85rem; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .content { padding: 1.5rem; }
+    }
+
+    /* ─── Footer ─── */
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">OpenCode <span>Tutorial</span></div>
+  <div class="nav-links">
+    <span class="badge">v1.17.14</span>
+    <a href="https://opencode.ai" target="_blank">Web</a>
+    <a href="https://github.com/anomalyco/opencode" target="_blank">GitHub</a>
+    <a href="https://opencode.ai/docs" target="_blank">Docs</a>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <aside class="sidebar" id="sidebar">
+    <h3>Navegación</h3>
+    <a href="#instalacion" class="nav-link">Instalación</a>
+    <a href="#configurar-un-proveedor-de-ia" class="nav-link">Proveedores</a>
+    <a href="#primeros-pasos" class="nav-link">Primeros Pasos</a>
+    <a href="#atajos-de-teclado" class="nav-link">Atajos</a>
+    <a href="#comandos-integrados" class="nav-link">Comandos</a>
+    <a href="#comandos-personalizados" class="nav-link">Comandos Custom</a>
+    <a href="#modos--agentes" class="nav-link">Agentes</a>
+    <a href="#configuracion-avanzada" class="nav-link">Config Avanzada</a>
+    <a href="#temas-y-personalizacion" class="nav-link">Temas</a>
+    <a href="#mcp-servers" class="nav-link">MCP Servers</a>
+    <a href="#tips-y-buenas-practicas" class="nav-link">Tips</a>
+    <a href="#troubleshooting" class="nav-link">Troubleshooting</a>
+  </aside>
+
+  <main class="content" id="content">
+    <div style="text-align:center;padding:4rem 0;color:var(--text-muted);">
+      <div style="font-size:3rem;margin-bottom:1rem;">⏳</div>
+      Cargando tutorial...
+    </div>
+  </main>
+</div>
+
+<div class="footer">
+  Tutorial generado para Ricardo &mdash; Paraguay &mdash; Julio 2026
+</div>
+
+<script>
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+});
+
+// Mapa de secciones para scroll spy
+const sectionMap = {};
+
+fetch('README.md')
+  .then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.text();
+  })
+  .then(md => {
+    document.getElementById('content').innerHTML = marked.parse(md);
+
+    // Construir mapa de secciones para scroll spy
+    document.querySelectorAll('.content h1, .content h2').forEach(h => {
+      if (h.id) sectionMap[h.id] = h;
+    });
+
+    // Highlight de código inline
+    document.querySelectorAll('.content pre code').forEach(block => {
+      block.innerHTML = block.innerHTML
+        .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    });
+  })
+  .catch(err => {
+    document.getElementById('content').innerHTML = `
+      <div style="text-align:center;padding:4rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">⚠️</div>
+        <h2>Error al cargar el tutorial</h2>
+        <p style="color:var(--red);margin-top:1rem;">${err.message}</p>
+        <p style="margin-top:1rem;">
+          <a href="README.md" style="color:var(--accent);">Abrir README.md directamente</a>
+        </p>
+      </div>
+    `;
+  });
+
+// Scroll spy
+const links = document.querySelectorAll('.nav-link');
+let ticking = false;
+document.addEventListener('scroll', () => {
+  if (!ticking) {
+    window.requestAnimationFrame(() => {
+      let current = '';
+      for (const [id, el] of Object.entries(sectionMap)) {
+        if (el.getBoundingClientRect().top <= 120) current = id;
+      }
+      links.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+      });
+      ticking = false;
+    });
+    ticking = true;
+  }
+});
+</script>
+</body>
+</html>

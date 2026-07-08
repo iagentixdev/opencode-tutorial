@@ -1,0 +1,68 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "anthropic/claude-sonnet-4-5",
+
+  "command": {
+    "test": {
+      "description": "Ejecutar tests con cobertura",
+      "template": "Run the full test suite with coverage report and show any failures.\nFocus on the failing tests and suggest fixes.",
+      "agent": "build",
+      "model": "anthropic/claude-sonnet-4-5"
+    },
+    "deploy": {
+      "description": "Desplegar a producción",
+      "template": "Review the current code for any issues, then build and deploy the project.\nCheck for: missing env vars, hardcoded configs, console.logs, TODOs.\nReport what was done.",
+      "agent": "build"
+    },
+    "lint": {
+      "description": "Corregir linting automáticamente",
+      "template": "Run the linter and auto-fix any issues found.\nIf there are remaining warnings, list them.",
+      "agent": "build"
+    },
+    "review": {
+      "description": "Code review de los últimos cambios",
+      "template": "Review the recent git changes:\n!`git log --oneline -10`\nCheck for bugs, security issues, performance problems, code style.\nSuggest improvements.",
+      "agent": "plan",
+      "model": "anthropic/claude-sonnet-4-5"
+    },
+    "component": {
+      "description": "Crear un componente React con TypeScript",
+      "template": "Create a new React component named $ARGUMENTS with TypeScript support.\nInclude proper typing, basic structure, and a story file.\nPlace it in src/components/.",
+      "agent": "build"
+    },
+    "db-migrate": {
+      "description": "Crear una migración de base de datos",
+      "template": "Create a new database migration file for: $ARGUMENTS\nUse the existing migration patterns in the project.\nInclude both up and down migrations.",
+      "agent": "build"
+    },
+    "commit": {
+      "description": "Hacer commit con mensaje descriptivo",
+      "template": "Review the current changes:\n!`git diff --stat`\nCreate a meaningful commit message and commit all changes.\nUse conventional commits format.",
+      "agent": "build"
+    }
+  },
+
+  "agents": {
+    "coder": {
+      "model": "anthropic/claude-sonnet-4-5",
+      "maxTokens": 8000
+    },
+    "task": {
+      "model": "anthropic/claude-sonnet-4-5",
+      "maxTokens": 8000
+    },
+    "title": {
+      "model": "anthropic/claude-sonnet-4-5",
+      "maxTokens": 80
+    }
+  },
+
+  "permission": {
+    "*": "accept",
+    "bash": {
+      "*": "ask"
+    }
+  },
+
+  "autoCompact": true
+}
