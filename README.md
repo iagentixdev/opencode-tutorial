@@ -504,5 +504,166 @@ Ctrl+O   # selector de modelo
 
 ---
 
+## 🧩 Mejores Skills y MCP Servers para OpenCode
+
+### MCP Servers Recomendados
+
+Los MCP (Model Context Protocol) servers extienden lo que OpenCode puede hacer.
+
+| MCP Server | Uso | Instalación |
+|------------|-----|------------|
+| **Filesystem** | Leer/escribir archivos, buscar contenido | `npx -y @modelcontextprotocol/server-filesystem .` |
+| **GitHub** | Issues, PRs, repos, búsqueda | `npx -y @modelcontextprotocol/server-github` |
+| **Postgres** | Consultar DB, esquemas, migraciones | `npx -y @anthropic-ai/mcp-server-postgres` |
+| **Playwright** | Navegador headless, tests E2E | `npx -y @executeautomation/playwright-mcp-server` |
+| **Slack** | Mensajes, canales, búsqueda | `npx -y @modelcontextprotocol/server-slack` |
+| **Memory** | Memoria persistente entre sesiones | `npx -y @modelcontextprotocol/server-memory` |
+| **Puppeteer** | Web scraping, screenshots | `npx -y @modelcontextprotocol/server-puppeteer` |
+| **Brave Search** | Búsqueda web desde OpenCode | `npx -y @modelcontextprotocol/server-brave-search` |
+
+Configuración:
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+    },
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    },
+    "postgres": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-postgres", "postgresql://..."]
+    }
+  }
+}
+```
+
+### Skills Esenciales (Workflows Avanzados)
+
+#### 🔍 Investigación y Debug
+```markdown
+# .opencode/commands/debug.md
+---
+description: Debuggear un error con stack trace
+agent: build
+---
+I'm getting this error:
+!`cat /tmp/error.log | tail -50`
+
+Analyze the stack trace and suggest a fix.
+Check @src for relevant code.
+```
+
+#### 🔄 Code Review Automático
+```markdown
+# .opencode/commands/review-all.md
+---
+description: Revisar todos los cambios sin commitear
+agent: plan
+---
+Review all uncommitted changes:
+!`git diff`
+
+Check for:
+- Security vulnerabilities
+- Performance issues
+- Code style consistency
+- Missing error handling
+- Hardcoded values
+
+Suggest specific improvements.
+```
+
+#### 📊 Análisis de Base de Datos
+```markdown
+# .opencode/commands/db-analyze.md
+---
+description: Analizar esquema y datos de DB
+agent: build
+---
+Analyze the database schema:
+!`cat prisma/schema.prisma`
+
+Suggest optimizations:
+- Missing indexes
+- Relationship improvements
+- N+1 query risks
+- Migration best practices
+```
+
+#### 🚀 Deploy Checklist
+```markdown
+# .opencode/commands/release.md
+---
+description: Preparar release con checklist
+agent: build
+---
+Prepare a release:
+!`git log --oneline $(git describe --tags --abbrev=0)..HEAD`
+
+Check:
+- Version bumped in package.json
+- Changelog updated
+- Tests passing
+- All TODOs resolved or tracked
+- Migration files ready
+
+Create the release notes.
+```
+
+### Multi-Agent Workflows
+
+OpenCode permite coordinar múltiples agentes para tareas complejas:
+
+```json
+{
+  "agents": {
+    "architect": {
+      "description": "Diseña la solución",
+      "model": "anthropic/claude-sonnet-4-5"
+    },
+    "coder": {
+      "description": "Implementa el código",
+      "model": "anthropic/claude-sonnet-4-5",
+      "maxTokens": 8000
+    },
+    "reviewer": {
+      "description": "Revisa el código",
+      "agent": "plan",
+      "model": "anthropic/claude-sonnet-4-5"
+    },
+    "tester": {
+      "description": "Escribe tests",
+      "model": "anthropic/gpt-4.1-mini"
+    }
+  }
+}
+```
+
+Flujo de trabajo:
+1. **Architect mode** → diseñar la solución
+2. **Coder mode** → implementar
+3. **Reviewer mode** → code review
+4. **Tester mode** → escribir tests
+5. **Build mode** → integrar todo
+
+### Tips de Prompting Avanzado
+
+- **Contexto primero**: "We're building a SaaS with Next.js + Prisma + Stripe. Users can..."
+- **Ejemplos concretos**: "Like how Stripe does it in their docs"
+- **Restricciones explícitas**: "No external dependencies, use Web APIs only"
+- **Referencias visuales**: Arrastrá imágenes al terminal como referencia de diseño
+- **Iterar con planes**: Siempre Plan Mode primero para features complejas
+- **Archivos @**: Referenciá archivos clave para dar contexto preciso
+- **Shell injection**: Usá ``!`command` `` para inyectar datos reales del proyecto
+
+---
+
 *Este tutorial fue generado para Ricardo — Paraguay 🇵🇾 — Julio 2026*
 *Basado en la documentación oficial de [opencode.ai/docs](https://opencode.ai/docs)*

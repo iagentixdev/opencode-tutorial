@@ -216,13 +216,14 @@
     <a href="#instalacion" class="nav-link">Instalación</a>
     <a href="#configurar-un-proveedor-de-ia" class="nav-link">Proveedores</a>
     <a href="#primeros-pasos" class="nav-link">Primeros Pasos</a>
-    <a href="#atajos-de-teclado" class="nav-link">Atajos</a>
+    <a href="#atajos-de-teclado-tui" class="nav-link">Atajos</a>
     <a href="#comandos-integrados" class="nav-link">Comandos</a>
     <a href="#comandos-personalizados" class="nav-link">Comandos Custom</a>
-    <a href="#modos--agentes" class="nav-link">Agentes</a>
+    <a href="#modos-agentes" class="nav-link">Agentes</a>
     <a href="#configuracion-avanzada" class="nav-link">Config Avanzada</a>
     <a href="#temas-y-personalizacion" class="nav-link">Temas</a>
-    <a href="#mcp-servers" class="nav-link">MCP Servers</a>
+    <a href="#mcp-servers-model-context-protocol" class="nav-link">MCP Servers</a>
+    <a href="#mejores-skills-y-mcp-servers-para-opencode" class="nav-link">Skills + MCP</a>
     <a href="#tips-y-buenas-practicas" class="nav-link">Tips</a>
     <a href="#troubleshooting" class="nav-link">Troubleshooting</a>
   </aside>
@@ -240,9 +241,28 @@
 </div>
 
 <script>
+// Custom heading ID: limpia emojis, acentos, espacios
+function slugify(text) {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // quita diacríticos (acentos)
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')         // borra emojis y símbolos
+    .replace(/\s+/g, '-')              // espacios → guiones
+    .replace(/-+/g, '-')               // colapsa guiones múltiples
+    .replace(/^-|-$/g, '');            // recorta bordes
+}
+
+const renderer = new marked.Renderer();
+renderer.heading = function({ text, depth }) {
+  const id = slugify(text);
+  return `<h${depth} id="${id}">${text}</h${depth}>`;
+};
+
 marked.setOptions({
   breaks: true,
   gfm: true,
+  renderer,
 });
 
 // Mapa de secciones para scroll spy
