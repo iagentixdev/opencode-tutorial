@@ -1,319 +1,277 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OpenCode Tutorial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'] }
+        }
+      }
+    }
+  </script>
   <style>
-    :root {
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface2: #334155;
-      --text: #e2e8f0;
-      --text-muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent2: #818cf8;
-      --border: #334155;
-      --green: #34d399;
-      --red: #fb7185;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
+    /* smooth scroll */
+    html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+    /* inline code */
+    .content code:not(pre code) {
+      background: #1e293b; color: #38bdf8;
+      padding: 0.15rem 0.4rem; border-radius: 4px;
+      font-size: 0.85em; font-family: 'JetBrains Mono', monospace;
     }
 
-    /* ─── Navbar ─── */
-    .navbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 2rem;
-      display: flex;
-      align-items: center;
-      height: 60px;
-      gap: 1rem;
-    }
-    .navbar .logo {
-      font-weight: 700;
-      font-size: 1.2rem;
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .navbar .logo span { color: var(--accent2); }
-    .navbar .nav-links {
-      margin-left: auto;
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-    .navbar .nav-links a {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.875rem;
-      transition: color 0.2s;
-    }
-    .navbar .nav-links a:hover { color: var(--accent); }
-    .navbar .badge {
-      background: var(--accent);
-      color: #0f172a;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      font-weight: 700;
-    }
-
-    /* ─── Layout ─── */
-    .wrapper {
-      display: flex;
-      margin-top: 60px;
-      min-height: calc(100vh - 60px);
-    }
-
-    /* ─── Sidebar ─── */
-    .sidebar {
-      width: 260px;
-      flex-shrink: 0;
-      border-right: 1px solid var(--border);
-      padding: 1.5rem 1rem;
-      overflow-y: auto;
-      position: sticky;
-      top: 60px;
-      height: calc(100vh - 60px);
-    }
-    .sidebar::-webkit-scrollbar { width: 4px; }
-    .sidebar::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 4px; }
-    .sidebar h3 {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      margin: 1.5rem 0 0.5rem 0;
-    }
-    .sidebar h3:first-child { margin-top: 0; }
-    .sidebar a {
-      display: block;
-      padding: 0.3rem 0.75rem;
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.85rem;
-      border-radius: 6px;
-      transition: all 0.15s;
-    }
-    .sidebar a:hover, .sidebar a.active {
-      background: var(--surface);
-      color: var(--accent);
-    }
-
-    /* ─── Content ─── */
-    .content {
-      flex: 1;
-      padding: 2.5rem 3rem;
-      max-width: 900px;
-    }
-    .content h1 {
-      font-size: 2rem;
-      margin: 2rem 0 0.5rem 0;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--border);
-      color: var(--accent);
-    }
-    .content h1:first-child { margin-top: 0; }
-    .content h2 { font-size: 1.5rem; margin: 2rem 0 0.75rem; color: var(--accent2); }
-    .content h3 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem; color: var(--text); }
-    .content p { margin: 0.75rem 0; color: var(--text-muted); }
-    .content strong { color: var(--text); }
-    .content a { color: var(--accent); text-decoration: none; }
-    .content a:hover { text-decoration: underline; }
-    .content ul, .content ol { margin: 0.5rem 0; padding-left: 1.5rem; }
-    .content li { margin: 0.3rem 0; color: var(--text-muted); }
-    .content li strong { color: var(--text); }
-    .content blockquote {
-      border-left: 4px solid var(--accent);
-      padding: 0.75rem 1rem;
-      margin: 1rem 0;
-      background: var(--surface);
-      border-radius: 0 8px 8px 0;
-    }
-    .content blockquote p { margin: 0; }
-
-    /* ─── Code ─── */
-    .content code {
-      background: var(--surface2);
-      padding: 0.15rem 0.4rem;
-      border-radius: 4px;
-      font-family: "JetBrains Mono", "Fira Code", monospace;
-      font-size: 0.85em;
-    }
+    /* pre code */
     .content pre {
-      background: #0a0f1e;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-      margin: 1rem 0;
+      background: #0a0f1e; border: 1px solid #334155;
+      border-radius: 8px; padding: 1rem; margin: 1rem 0;
       overflow-x: auto;
     }
     .content pre code {
-      background: none;
-      padding: 0;
-      font-size: 0.85rem;
-      color: var(--green);
+      background: none; padding: 0; font-size: 0.85rem;
+      color: #34d399; font-family: 'JetBrains Mono', monospace;
     }
-    .content table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
+
+    /* blockquote */
+    .content blockquote {
+      border-left: 4px solid #38bdf8; padding: 0.75rem 1rem;
+      margin: 1rem 0; background: #1e293b;
+      border-radius: 0 8px 8px 0;
     }
+
+    /* tables */
+    .content table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
     .content th, .content td {
-      border: 1px solid var(--border);
-      padding: 0.5rem 0.75rem;
-      text-align: left;
+      border: 1px solid #334155; padding: 0.5rem 0.75rem;
+      text-align: left; font-size: 0.875rem;
     }
-    .content th { background: var(--surface); color: var(--accent); font-size: 0.85rem; }
+    .content th { background: #1e293b; color: #38bdf8; font-weight: 600; }
 
-    /* ─── Responsive ─── */
-    @media (max-width: 768px) {
-      .sidebar { display: none; }
-      .content { padding: 1.5rem; }
+    /* links */
+    .content a { color: #38bdf8; text-decoration: none; }
+    .content a:hover { text-decoration: underline; }
+
+    /* heading anchors hover */
+    .content h1, .content h2, .content h3, .content h4 {
+      scroll-margin-top: 5rem;
     }
 
-    /* ─── Footer ─── */
-    .footer {
-      text-align: center;
-      padding: 2rem;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      border-top: 1px solid var(--border);
-      margin-top: 3rem;
+    /* sidebar link active */
+    .nav-link.active {
+      background: #1e293b; color: #38bdf8; border-right: 3px solid #38bdf8;
+    }
+
+    /* goal progress colors */
+    .goal-active { color: #34d399; }
+    .goal-paused { color: #fbbf24; }
+    .goal-done   { color: #60a5fa; }
+
+    /* transition for mobile menu */
+    .sidebar-panel {
+      transition: transform 0.25s ease-in-out;
+    }
+    .sidebar-overlay {
+      transition: opacity 0.25s ease-in-out;
     }
   </style>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased">
 
-<nav class="navbar">
-  <div class="logo">OpenCode <span>Tutorial</span></div>
-  <div class="nav-links">
-    <span class="badge">v1.17.14</span>
-    <a href="https://opencode.ai" target="_blank">Web</a>
-    <a href="https://github.com/anomalyco/opencode" target="_blank">GitHub</a>
-    <a href="https://opencode.ai/docs" target="_blank">Docs</a>
+<!-- ─── Navbar ─── -->
+<nav class="fixed top-0 left-0 right-0 z-50 h-14 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 flex items-center px-3 md:px-6 gap-2">
+  <!-- Hamburger -->
+  <button id="menuBtn" class="md:hidden p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Abrir menú">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path id="menuIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
+
+  <div class="font-bold text-sm md:text-base">
+    <span class="text-sky-400">OpenCode</span>
+    <span class="text-indigo-400">Tutorial</span>
+  </div>
+
+  <div class="ml-auto flex items-center gap-2 md:gap-4">
+    <span class="hidden md:inline-block bg-sky-500/10 text-sky-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-500/20">v1.17.14</span>
+    <a href="https://opencode.ai" target="_blank" class="hidden sm:inline text-xs text-slate-500 hover:text-sky-400 transition">Web</a>
+    <a href="https://github.com/anomalyco/opencode" target="_blank" class="hidden sm:inline text-xs text-slate-500 hover:text-sky-400 transition">GitHub</a>
+    <a href="https://opencode.ai/docs" target="_blank" class="text-xs text-slate-500 hover:text-sky-400 transition">Docs</a>
   </div>
 </nav>
 
-<div class="wrapper">
-  <aside class="sidebar" id="sidebar">
-    <h3>Navegación</h3>
-    <a href="#instalacion" class="nav-link">Instalación</a>
-    <a href="#configurar-un-proveedor-de-ia" class="nav-link">Proveedores</a>
-    <a href="#primeros-pasos" class="nav-link">Primeros Pasos</a>
-    <a href="#atajos-de-teclado-tui" class="nav-link">Atajos</a>
-    <a href="#comandos-integrados" class="nav-link">Comandos</a>
-    <a href="#comandos-personalizados" class="nav-link">Comandos Custom</a>
-    <a href="#modos-agentes" class="nav-link">Agentes</a>
-    <a href="#configuracion-avanzada" class="nav-link">Config Avanzada</a>
-    <a href="#temas-y-personalizacion" class="nav-link">Temas</a>
-    <a href="#mcp-servers-model-context-protocol" class="nav-link">MCP Servers</a>
-    <a href="#openspec--spec-driven-development-para-opencode" class="nav-link">OpenSpec</a>
-    <a href="#opencode-goal-plugin--modo-goal-persistente" class="nav-link">Goal Plugin</a>
-    <a href="#mejores-skills-y-mcp-servers-para-opencode" class="nav-link">Skills + MCP</a>
-    <a href="#tips-y-buenas-practicas" class="nav-link">Tips</a>
-    <a href="#troubleshooting" class="nav-link">Troubleshooting</a>
-  </aside>
+<!-- ─── Overlay (mobile) ─── -->
+<div id="overlay" class="sidebar-overlay fixed inset-0 z-30 bg-black/50 opacity-0 pointer-events-none md:pointer-events-none md:opacity-0"></div>
 
-  <main class="content" id="content">
-    <div style="text-align:center;padding:4rem 0;color:var(--text-muted);">
-      <div style="font-size:3rem;margin-bottom:1rem;">⏳</div>
-      Cargando tutorial...
+<!-- ─── Sidebar ─── -->
+<aside id="sidebar" class="sidebar-panel fixed top-14 left-0 z-40 w-64 h-[calc(100vh-3.5rem)] bg-slate-900/95 border-r border-slate-800 overflow-y-auto
+  -translate-x-full md:translate-x-0 md:sticky md:top-14 md:z-auto md:block md:flex-shrink-0">
+  <div class="p-3 md:p-4 space-y-1">
+    <div class="text-[10px] uppercase tracking-widest text-slate-500 font-semibold px-3 pb-2 pt-1">Navegación</div>
+    <a href="#instalacion" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Instalación</a>
+    <a href="#configurar-un-proveedor-de-ia" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Proveedores</a>
+    <a href="#primeros-pasos" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Primeros Pasos</a>
+    <a href="#atajos-de-teclado-tui" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Atajos</a>
+    <a href="#comandos-integrados" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Comandos</a>
+    <a href="#comandos-personalizados" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Comandos Custom</a>
+    <a href="#modos-agentes" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Agentes</a>
+    <a href="#configuracion-avanzada" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Config Avanzada</a>
+    <a href="#temas-y-personalizacion" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Temas</a>
+    <a href="#mcp-servers-model-context-protocol" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">MCP Servers</a>
+    <a href="#openspec--spec-driven-development-para-opencode" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">OpenSpec</a>
+    <a href="#opencode-goal-plugin--modo-goal-persistente" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Goal Plugin</a>
+    <a href="#mejores-skills-y-mcp-servers-para-opencode" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Skills + MCP</a>
+    <a href="#tips-y-buenas-practicas" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Tips</a>
+    <a href="#troubleshooting" class="nav-link block px-3 py-1.5 text-sm text-slate-400 rounded-md hover:bg-slate-800 hover:text-sky-400 transition">Troubleshooting</a>
+  </div>
+</aside>
+
+<!-- ─── Main layout ─── -->
+<div class="flex mt-14 min-h-[calc(100vh-3.5rem)]">
+  <!-- Sidebar spacer (desktop) -->
+  <div id="sidebarSpacer" class="hidden md:block w-64 flex-shrink-0"></div>
+
+  <!-- ─── Content ─── -->
+  <main id="content" class="content flex-1 px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-8 max-w-4xl mx-auto w-full min-w-0">
+    <!-- Loading -->
+    <div id="loading" class="flex flex-col items-center justify-center py-20 text-slate-500">
+      <div class="w-8 h-8 border-2 border-sky-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-sm">Cargando tutorial...</p>
+    </div>
+
+    <!-- Error -->
+    <div id="error" class="hidden flex flex-col items-center justify-center py-20 text-slate-500">
+      <div class="text-5xl mb-4">⚠️</div>
+      <h2 class="text-xl font-bold text-slate-300 mb-2">Error al cargar</h2>
+      <p id="errorMsg" class="text-sm text-rose-400 mb-4"></p>
+      <a href="README.md" class="text-sm text-sky-400 hover:underline">Abrir README.md directamente</a>
     </div>
   </main>
 </div>
 
-<div class="footer">
-  Tutorial generado para Ricardo &mdash; Paraguay &mdash; Julio 2026
-</div>
+<!-- ─── Footer ─── -->
+<footer class="text-center py-6 text-slate-600 text-xs border-t border-slate-800">
+  Tutorial para Ricardo &mdash; Paraguay &mdash; Julio 2026
+</footer>
 
 <script>
-// Custom heading ID: limpia emojis, acentos, espacios
+// ─── Marked config ───
 function slugify(text) {
   return text
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // quita diacríticos (acentos)
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')         // borra emojis y símbolos
-    .replace(/\s+/g, '-')              // espacios → guiones
-    .replace(/-+/g, '-')               // colapsa guiones múltiples
-    .replace(/^-|-$/g, '');            // recorta bordes
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 const renderer = new marked.Renderer();
 renderer.heading = function({ text, depth }) {
   const id = slugify(text);
-  return `<h${depth} id="${id}">${text}</h${depth}>`;
+  return `<h${depth} id="${id}" class="text-sky-400${depth === 1 ? ' text-2xl md:text-3xl font-bold mt-8 mb-4 pb-2 border-b border-slate-800' : depth === 2 ? ' text-xl md:text-2xl font-bold mt-8 mb-3 text-indigo-400' : depth === 3 ? ' text-lg font-semibold mt-6 mb-2 text-slate-200' : ' text-base font-semibold mt-4 mb-2'}">${text}</h${depth}>`;
 };
 
-marked.setOptions({
-  breaks: true,
-  gfm: true,
-  renderer,
-});
+marked.setOptions({ breaks: true, gfm: true, renderer });
 
-// Mapa de secciones para scroll spy
-const sectionMap = {};
+// ─── Load content ───
+const contentEl = document.getElementById('content');
+const loadingEl = document.getElementById('loading');
+const errorEl = document.getElementById('error');
+const errorMsg = document.getElementById('errorMsg');
 
 fetch('README.md')
   .then(r => {
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
     return r.text();
   })
   .then(md => {
-    document.getElementById('content').innerHTML = marked.parse(md);
+    const html = marked.parse(md);
+    // remove loading
+    loadingEl.remove();
+    // inject html BEFORE the loading placeholder
+    contentEl.innerHTML = html + (contentEl.querySelector('#error')?.outerHTML || '');
+    // clean error placeholder if present
+    const errNode = document.getElementById('error');
+    if (errNode) errNode.remove();
 
-    // Construir mapa de secciones para scroll spy
-    document.querySelectorAll('.content h1, .content h2').forEach(h => {
-      if (h.id) sectionMap[h.id] = h;
-    });
-
-    // Highlight de código inline
+    // highlight raw code blocks
     document.querySelectorAll('.content pre code').forEach(block => {
       block.innerHTML = block.innerHTML
         .replace(/</g, '&lt;').replace(/>/g, '&gt;');
     });
   })
   .catch(err => {
-    document.getElementById('content').innerHTML = `
-      <div style="text-align:center;padding:4rem;">
-        <div style="font-size:3rem;margin-bottom:1rem;">⚠️</div>
-        <h2>Error al cargar el tutorial</h2>
-        <p style="color:var(--red);margin-top:1rem;">${err.message}</p>
-        <p style="margin-top:1rem;">
-          <a href="README.md" style="color:var(--accent);">Abrir README.md directamente</a>
-        </p>
-      </div>
-    `;
+    loadingEl.classList.add('hidden');
+    errorEl.classList.remove('hidden');
+    errorMsg.textContent = err.message;
   });
 
-// Scroll spy
-const links = document.querySelectorAll('.nav-link');
+// ─── Mobile menu ───
+const menuBtn = document.getElementById('menuBtn');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+const menuIcon = document.getElementById('menuIcon');
+let menuOpen = false;
+
+function toggleMenu() {
+  menuOpen = !menuOpen;
+  if (menuOpen) {
+    sidebar.classList.remove('-translate-x-full');
+    overlay.classList.remove('opacity-0', 'pointer-events-none');
+    overlay.classList.add('opacity-100', 'pointer-events-auto');
+    menuIcon.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+  } else {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('opacity-0', 'pointer-events-none');
+    overlay.classList.remove('opacity-100', 'pointer-events-auto');
+    menuIcon.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+  }
+}
+
+menuBtn.addEventListener('click', toggleMenu);
+overlay.addEventListener('click', toggleMenu);
+
+// Close menu on link click (mobile)
+document.querySelectorAll('.nav-link').forEach(a => {
+  a.addEventListener('click', () => {
+    if (window.innerWidth < 768) toggleMenu();
+  });
+});
+
+// ─── Scroll spy ───
+const sectionMap = {};
+const navLinks = document.querySelectorAll('.nav-link');
+
 let ticking = false;
 document.addEventListener('scroll', () => {
   if (!ticking) {
     window.requestAnimationFrame(() => {
+      // rebuild section map each time since content is dynamic
+      if (Object.keys(sectionMap).length === 0) {
+        document.querySelectorAll('.content [id]').forEach(el => {
+          if (el.tagName.match(/^H[1-4]$/)) sectionMap[el.id] = el;
+        });
+      }
       let current = '';
       for (const [id, el] of Object.entries(sectionMap)) {
-        if (el.getBoundingClientRect().top <= 120) current = id;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= 120) current = id;
       }
-      links.forEach(a => {
-        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+      navLinks.forEach(a => {
+        const href = a.getAttribute('href').replace(/^#/, '');
+        a.classList.toggle('active', href === current);
       });
       ticking = false;
     });
