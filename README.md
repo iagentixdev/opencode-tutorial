@@ -504,6 +504,170 @@ Ctrl+O   # selector de modelo
 
 ---
 
+## 📋 OpenSpec — Spec-Driven Development para OpenCode
+
+**OpenSpec** es un framework liviano de **spec-driven development (SDD)** que estructura cómo humanos y AI acuerdan qué construir antes de escribir código. Creado por Fission-AI.
+
+> Web: [openspec.dev](https://openspec.dev) · Repo: [github.com/Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) · npm: `@fission-ai/openspec`
+
+### ¿Por qué OpenSpec?
+
+Sin specs, los prompts son vagos y los resultados impredecibles. OpenSpec agrega una **capa de especificación** liviana:
+
+- ✅ Acordá antes de construir — humano y AI alinean specs antes del código
+- ✅ Organizado — cada cambio tiene su carpeta con proposal, specs, design y tasks
+- ✅ Fluido — actualizás cualquier artefacto en cualquier momento, sin fases rígidas
+- ✅ Multi-herramienta — funciona con 30+ asistentes AI via slash commands
+
+### 📦 Instalación
+
+```bash
+npm install -g @fission-ai/openspec@latest
+```
+
+Requiere Node.js 20.19+.
+
+### 🚀 Inicialización
+
+```bash
+cd tu-proyecto
+openspec init
+```
+
+Esto crea la estructura `openspec/changes/` en tu proyecto.
+
+### 🧠 Comandos Slash (para usar dentro de OpenCode)
+
+| Comando | Descripción |
+|---------|-------------|
+| `/opsx:explore` | Explorá ideas sin compromiso. El AI lee tu código, analiza opciones, ayuda a dar forma a un plan |
+| `/opsx:propose` | Proponé un cambio formal. Crea `openspec/changes/<nombre>/` con proposal, specs, design, tasks |
+| `/opsx:apply` | Implementá las tasks del proposal una por una |
+| `/opsx:archive` | Archiva un cambio completado. Mergea los spec deltas al spec library |
+| `/opsx:continue` | Seguí trabajando en un cambio existente |
+| `/opsx:ff` | Fast-forward. Saltá directo a implementar specs ya claras |
+| `/opsx:verify` | Verificá que la implementación cumpla con los specs |
+| `/opsx:onboard` | Agregá un nuevo miembro al equipo con contexto del proyecto |
+| `/opsx:bulk-archive` | Archivá múltiples cambios completados de una sola vez |
+
+### 📁 Estructura que genera en tu proyecto
+
+```
+tu-proyecto/
+└── openspec/
+    └── changes/
+        └── add-dark-mode/           # cada feature es una carpeta
+            ├── proposal.md          # por qué, qué cambia, alcance
+            ├── specs/               # requirements + scenarios
+            │   ├── requirements.md  # requirements funcionales
+│   │   └── scenarios.md      # ejemplos GIVEN/WHEN/THEN
+│   ├── design.md             # enfoque técnico
+│   └── tasks.md              # checklist de implementación
+└── archive/                  # cambios completados
+    └── 2025-01-23-add-dark-mode/
+```
+
+### 🔄 Flujo de trabajo con OpenCode
+
+```
+1. /opsx:explore "Quiero agregar dark mode pero no sé cómo encararlo"
+   → El AI lee tu setup de estilos, analiza opciones y recomienda
+g2. /opsx:propose add-dark-mode
+   → Crea la carpeta openspec/changes/add-dark-mode/ con artifacts
+3. Revisás proposal.md y specs/, iterás con el AI
+4. /opsx:apply
+   → Implementa las tasks una por una
+5. /opsx:archive
+   → Archiva el cambio, mergea specs al spec library
+```
+
+### 📊 Spec Deltas
+
+Cada cambio produce un **spec delta** que captura cómo cambian los requirements:
+
+```diff
+### Requirement: Session expiration
+- The system SHALL expire sessions after a configured duration.
++ The system SHALL support configurable session expiration periods.
+
+#### Scenario: Default session timeout
+- GIVEN a user has authenticated
+- - WHEN 24 hours pass without activity
++ - WHEN 24 hours pass without "Remember me"
+- THEN invalidate the session token
++ #### Scenario: Extended session with remember me
++ - GIVEN user checks "Remember me" at login
++ - WHEN 30 days have passed
++ - THEN invalidate the session token
++ - AND clear the persistent cookie
+```
+
+Esto permite a revisores entender el cambio a nivel requirements sin tener que leer código.
+
+### 🏢 Multi-repo con Stores (beta)
+
+Para equipos grandes, OpenSpec soporta **Stores** — un repo separado donde:
+- Un equipo de plataforma define specs que otros equipos consumen
+- Features cross-repo con un solo plan que abarca API server, web app y shared lib
+- Planificás antes de codificar en cada repo
+
+```bash
+openspec store init
+```
+
+### ⚙️ Commands CLI
+
+```bash
+# Inicializar OpenSpec en un proyecto
+openspec init
+
+# Actualizar instrucciones del AI
+openspec update
+
+# Configurar perfil (default o expanded)
+openspec config profile
+
+# Ver estado
+openspec status
+```
+
+### 🧩 Integración con OpenCode
+
+Agregá este command custom para arrancar un feature con OpenSpec desde OpenCode:
+
+```markdown
+# .opencode/commands/spec.md
+---
+description: Iniciar un nuevo feature con OpenSpec
+agent: build
+---
+Use the OpenSpec workflow for this feature.
+
+1. First, run /opsx:explore to explore the idea
+2. Then /opsx:propose with the feature name
+3. Review and iterate on the specs
+4. Finally /opsx:apply to implement
+
+The change directory is at openspec/changes/
+Point me to the relevant files and specs.
+```
+
+### 🤖 Modelos recomendados
+
+OpenSpec funciona mejor con modelos de alto razonamiento:
+- **GPT-5.5 Codex** / **GPT-5.3 Codex** — planificación e implementación
+- **Claude Opus 4.7** — análisis de specs y diseño
+- **Claude Sonnet 4.5** — implementación rápida
+
+### 📚 Más info
+
+- [Getting Started](https://github.com/Fission-AI/OpenSpec/blob/main/docs/getting-started.md)
+- [How Commands Work](https://github.com/Fission-AI/OpenSpec/blob/main/docs/how-commands-work.md)
+- [Supported Tools](https://github.com/Fission-AI/OpenSpec/blob/main/docs/supported-tools.md)
+- [Discord](https://discord.gg/YctCnvvshC)
+
+---
+
 ## 🧩 Mejores Skills y MCP Servers para OpenCode
 
 ### MCP Servers Recomendados
