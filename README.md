@@ -773,48 +773,143 @@ export OPENCODE_GOAL_STATE_PATH=/ruta/personalizada/goals.json
 
 ---
 
+## 🧩 oh-my-opencode-slim — Multi-Agent Orchestration para OpenCode
+
+**oh-my-opencode-slim** es un plugin de orquestación multi-agente para OpenCode. Construye un equipo de agentes especializados que trabajan bajo un orquestador central: scoutean el codebase, buscan documentación, revisan arquitectura, manejan UI y ejecutan tareas de implementación.
+
+> Repo: [github.com/alvinunreal/oh-my-opencode-slim](https://github.com/alvinunreal/oh-my-opencode-slim) · by **Boring Dystopia Development**
+
+### ❓ ¿Para qué sirve?
+
+En lugar de forzar a un solo modelo a hacerlo todo, el plugin rutea cada parte del trabajo al agente más adecuado, balanceando **calidad, velocidad y costo**:
+
+- ✅ **Orquestación multi-agente** — Orchestrator planifica, delega y verifica
+- ✅ **Agentes de fondo (V2)** — trabajan en paralelo mientras el Orchestrator coordina
+- ✅ **Auto-delegación** — tareas complejas se parten automáticamente entre especialistas
+- ✅ **Mix de modelos** — usá el mejor modelo para cada rol (caro para planificar, barato para explorar)
+- ✅ **Companion** — ventana flotante que muestra qué agentes están activos
+- ✅ **Deepwork** — flujo estructurado para cambios grandes/riesgosos con gates de revisión
+- ✅ **Reflect** — detecta patrones repetidos y sugiere skills reutilizables
+- ✅ **Worktrees** — lanes de Git aislados para trabajo riesgoso en paralelo
+
+### 📦 Instalación
+
+```bash
+# Rápida (recomendada)
+bunx oh-my-opencode-slim@latest install
+
+# Con Companion (ventana flotante de estado)
+bunx oh-my-opencode-slim@latest install --companion=yes
+
+# Con preset OpenCode Go
+bunx oh-my-opencode-slim@latest install --preset=opencode-go
+```
+
+También desde master (para desarrollo/contribuciones):
+
+```bash
+git clone https://github.com/alvinunreal/oh-my-opencode-slim.git ~/repos/oh-my-opencode-slim
+cd ~/repos/oh-my-opencode-slim
+bun install
+bun run build
+bun dist/cli/index.js install
+```
+
+### 🏛️ El Panteón — 7 Agentes Especializados
+
+| Agente | Rol | Modelo Default | Costo |
+|--------|-----|----------------|-------|
+| **Orchestrator** | Planifica, delega, reconcilia resultados | `gpt-5.5 (medium)` | 🟡 Medio |
+| **Oracle** | Asesor estratégico, debug de último recurso | `gpt-5.5 (high)` | 🔴 Alto |
+| **Explorer** | Reconocimiento del codebase | `gpt-5.4-mini` | 🟢 Bajo |
+| **Council** | Consenso multi-modelo en paralelo | Configurable | 🔴 Alto |
+| **Librarian** | Búsqueda de documentación externa | `gpt-5.4-mini` | 🟢 Bajo |
+| **Designer** | UI/UX y maquetado visual | `gpt-5.4-mini` | 🟢 Bajo |
+| **Fixer** | Implementación rápida de cambios acotados | `gpt-5.5 (low)` | 🟡 Medio |
+| **Observer** *(optativo)* | Análisis visual de imágenes/screenshots | `gpt-5.4-mini` | 🟢 Bajo |
+
+### 🔧 Configuración
+
+El instalador genera dos presets: `openai` y `opencode-go`. Después de instalar:
+
+```bash
+# Login a los providers que querés usar
+opencode auth login
+
+# Refrescar lista de modelos
+opencode models --refresh
+
+# Editar la configuración de agentes
+# ~/.config/opencode/oh-my-opencode-slim.json
+```
+
+Ejemplo de configuración (`openai` preset):
+
+```jsonc
+{
+  "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
+  "preset": "openai",
+  "presets": {
+    "openai": {
+      "orchestrator": { "model": "openai/gpt-5.5", "variant": "medium", "skills": ["*"], "mcps": ["*", "!context7"] },
+      "oracle": { "model": "openai/gpt-5.5", "variant": "high", "skills": ["simplify"], "mcps": [] },
+      "explorer": { "model": "openai/gpt-5.4-mini", "variant": "low", "skills": [], "mcps": [] },
+      "librarian": { "model": "openai/gpt-5.4-mini", "variant": "low", "skills": [], "mcps": ["websearch", "context7", "gh_grep"] },
+      "designer": { "model": "openai/gpt-5.4-mini", "variant": "medium", "skills": [], "mcps": [] },
+      "fixer": { "model": "openai/gpt-5.5", "variant": "low", "skills": [], "mcps": [] }
+    }
+  }
+}
+```
+
+### 🤖 Delegación manual
+
+Podés llamar a cualquier agente directamente desde el chat:
+
+```
+@oracle Revisá esta arquitectura, estamos usando JWT pero necesitamos refresh tokens
+@explorer Scouteá el codebase y decime cómo está estructurado el módulo de auth
+@designer Dame una propuesta de UI para el dashboard de analytics
+@council Compará estas dos estrategias de cache: Redis vs in-memory
+```
+
+### ✅ Verificar instalación
+
+```
+ping all agents
+```
+
+### 🔁 V2 Features Principales
+
+| Feature | Descripción |
+|---------|-------------|
+| **Background Agents** | Orchestrator delega especialistas como tareas de fondo, espera resultados y reconcilia |
+| **Companion** | Ventana flotante desktop que muestra agentes activos en tiempo real |
+| **Deepwork** | `/deepwork <tarea>` — flujo estructurado con plan persistente y gates de Oracle |
+| **Reflect** | `/reflect` — revisa patrones de trabajo y sugiere skills reutilizables |
+| **Worktrees** | Lanes Git aislados en `.slim/worktrees/` para cambios riesgosos |
+| **Preset Switching** | `/preset` — cambiá config de agentes en runtime |
+
+### 🧰 LazySkills — TUI para Skills
+
+**[LazySkills](https://github.com/alvinunreal/lazyskills)** es una interfaz terminal para gestionar qué skills puede usar cada agente, ver qué está instalado y diagnosticar problemas de visibilidad.
+
+### 📚 Docs relacionadas
+
+- [Background Orchestration](https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/v2-background-orchestration.md)
+- [Configuration Reference](https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/configuration.md)
+- [Multiplexer Integration (Tmux/Zellij)](https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/multiplexer-integration.md)
+- [Council — Multi-LLM Consensus](https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/council.md)
+- [Author's Preset](https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/authors-preset.md)
+- [$30 Preset (budget)](https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/thirty-dollars-preset.md)
+
+---
+
 ## 🧩 Mejores Skills y MCP Servers para OpenCode
 
-### MCP Servers Recomendados# Ver estado
-openspec status
-```
+### MCP Servers Recomendados
 
-### 🧩 Integración con OpenCode
-
-Agregá este command custom para arrancar un feature con OpenSpec desde OpenCode:
-
-```markdown
-# .opencode/commands/spec.md
----
-description: Iniciar un nuevo feature con OpenSpec
-agent: build
----
-Use the OpenSpec workflow for this feature.
-
-1. First, run /opsx:explore to explore the idea
-2. Then /opsx:propose with the feature name
-3. Review and iterate on the specs
-4. Finally /opsx:apply to implement
-
-The change directory is at openspec/changes/
-Point me to the relevant files and specs.
-```
-
-### 🤖 Modelos recomendados
-
-OpenSpec funciona mejor con modelos de alto razonamiento:
-- **GPT-5.5 Codex** / **GPT-5.3 Codex** — planificación e implementación
-- **Claude Opus 4.7** — análisis de specs y diseño
-- **Claude Sonnet 4.5** — implementación rápida
-
-### 📚 Más info
-
-- [Getting Started](https://github.com/Fission-AI/OpenSpec/blob/main/docs/getting-started.md)
-- [How Commands Work](https://github.com/Fission-AI/OpenSpec/blob/main/docs/how-commands-work.md)
-- [Supported Tools](https://github.com/Fission-AI/OpenSpec/blob/main/docs/supported-tools.md)
-- [Discord](https://discord.gg/YctCnvvshC)
-
----
+Los MCP (Model Context Protocol) servers extienden lo que OpenCode puede hacer.
 
 ## 🧩 Mejores Skills y MCP Servers para OpenCode
 
