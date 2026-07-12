@@ -905,11 +905,359 @@ ping all agents
 
 ---
 
-## 🧩 Mejores Skills y MCP Servers para OpenCode
+## 📁 SDD + Estructura de proyecto OpenCode
 
-### MCP Servers Recomendados
+### Spec-Driven Development (SDD) en profundidad
 
-Los MCP (Model Context Protocol) servers extienden lo que OpenCode puede hacer.
+**SDD (Spec-Driven Development)** es una metodología donde primero se escribe la *spec* (qué querés construir) y recién después el código. No es un framework ni un plugin — es un **proceso** que podés implementar con herramientas como OpenSpec, GitHub Spec Kit, o incluso con prompts manuales.
+
+#### El ciclo SDD completo
+
+```
+Proponer → Especificar → Diseñar → Taskear → Implementar → Verificar → Archivar
+```
+
+| Fase | Artefacto | ¿Qué contiene? |
+|------|-----------|----------------|
+| **Proposal** | `proposal.md` | Por qué, qué cambia, alcance, riesgos |
+| **Specs** | `specs/requirements.md` | Requirements funcionales y no funcionales |
+| | `specs/scenarios.md` | Casos GIVEN/WHEN/THEN |
+| **Design** | `design.md` | Enfoque técnico, diagramas, decisiones |
+| **Tasks** | `tasks.md` | Checklist de implementación, orden de dependencias |
+| **Archive** | `archive/` | Cambios completados con spec deltas |
+
+#### OpenSpec + OpenCode: flujo real
+
+Con OpenSpec, todo esto se maneja con comandos slash desde la TUI de OpenCode:
+
+```
+# 1. Explorá sin compromiso
+/opsx:explore "Quiero agregar autenticación biométrica"
+
+# 2. Creá el proposal formal
+/opsx:propose add-biometric-auth
+
+# 3. Iterá specs con el AI
+/opsx:continue add-biometric-auth
+
+# 4. Implementá tarea por tarea
+/opsx:apply
+
+# 5. Archivá al completar
+/opsx:archive
+
+# 6. Verificá que la impl cumpla specs
+/opsx:verify
+```
+
+#### SDD sin OpenSpec (GitHub Spec Kit / manual)
+
+Si preferís no instalar OpenSpec, podés crear la estructura manualmente:
+
+```
+tu-proyecto/
+├── .specify/                    # GitHub Spec Kit
+│   ├── templates/               # Templates de specs
+│   └── prompts/                 # Prompts por herramienta
+└── changes/
+    └── add-search/
+        ├── spec.md
+        ├── technical-plan.md
+        └── tasks.md
+```
+
+### 📁 Estructura de carpetas de un proyecto OpenCode
+
+Esta es la estructura recomendada para cualquier proyecto que use OpenCode:
+
+```
+tu-proyecto/
+├── AGENTS.md                    # 📜 Reglas de proyecto para OpenCode (generado con /init)
+├── opencode.json                # ⚙️ Configuración principal del proyecto
+├── tui.json                     # 🎨 Tema y personalización de la TUI
+│
+├── .opencode/                   # 🧩 Configuración por proyecto
+│   ├── agents/                  # Agentes personalizados (.md)
+│   │   ├── code-reviewer.md     #   Ej: revisor de código
+│   │   └── tester.md            #   Ej: generador de tests
+│   ├── commands/                # Comandos slash personalizados (.md)
+│   │   ├── test.md              #   /test
+│   │   ├── deploy.md            #   /deploy
+│   │   └── lint.md              #   /lint
+│   ├── skills/                  # Skills reutilizables
+│   └── plugins/                 # Plugins locales
+│
+├── openspec/                    # 📋 SDD (si usás OpenSpec)
+│   ├── spec-library/            # Specs acumulados
+│   └── changes/                 # Cambios en progreso
+│       └── mi-feature/
+│           ├── proposal.md
+│           ├── specs/
+│           │   ├── requirements.md
+│           │   └── scenarios.md
+│           ├── design.md
+│           └── tasks.md
+│
+├── ~/.config/opencode/          # 🏠 Configuración global
+│   ├── opencode.json            # Config global (proveedores, plugins)
+│   ├── AGENTS.md                # Reglas personales globales
+│   ├── tui.json                 # Tema global
+│   ├── agents/                  # Agentes globales
+│   ├── commands/                # Comandos globales
+│   └── skills/                  # Skills globales
+│
+└── .opencode/                   # (en la raíz del proyecto, ver arriba)
+```
+
+#### AGENTS.md — el corazón de tu proyecto
+
+`/init` escanea tu repo y genera un `AGENTS.md` con:
+
+- Comandos de build, lint y test
+- Arquitectura y estructura del repo
+- Convenciones del proyecto
+- Setup quirks y gotchas operativos
+
+Ejemplo:
+
+```markdown
+# Mi Proyecto
+
+Monorepo con Next.js + Prisma + Stripe.
+Usamos TypeScript strict mode, bun como package manager.
+
+## Estructura
+
+- `packages/web/` — Frontend Next.js
+- `packages/api/` — API routes
+- `packages/shared/` — Tipos y utilidades compartidas
+- `infra/` — Terraform y configs de infraestructura
+
+## Comandos
+
+- Build: `bun run build`
+- Test: `bun run test`
+- Lint: `bun run lint`
+- Migrate DB: `bun run db:migrate`
+
+## Convenciones
+
+- Feature flags en `packages/shared/flags.ts`
+- Las API routes usan `zod` para validación
+- Los componentes nuevos van en `packages/web/components/` con su propio `.module.css`
+```
+
+#### Instrucciones externas
+
+Podés referenciar archivos externos como reglas:
+
+```json
+{
+  "instructions": [
+    "docs/development-standards.md",
+    "test/testing-guidelines.md",
+    ".cursor/rules/*.md",
+    "https://raw.githubusercontent.com/mi-org/shared-rules/main/style.md"
+  ]
+}
+```
+
+---
+
+## 🔁 Loop Engineering — Diseñá loops, no prompts
+
+> *"You shouldn't be prompting coding agents anymore. You should be designing loops that prompt your agents."* — Peter Steinberger
+
+**Loop Engineering** es la práctica de diseñar sistemas que orquestan automáticamente a los agentes de IA en ciclos controlados, en lugar de escribir prompts manualmente. El loop reemplaza al humano como el que da instrucciones — el humano diseña el sistema que da instrucciones.
+
+### ❓ ¿Por qué loops?
+
+Un prompt resuelve una pregunta. Un loop resuelve un **proceso continuo**:
+
+- ✅ **Descubrimiento automático** — scoutea el codebase en busca de issues, bugs, dependencias obsoletas
+- ✅ **Triage en segundo plano** — clasifica problemas sin intervención humana
+- ✅ **Auto-continuación** — avanza hasta completar una tarea, no se detiene después de un turno
+- ✅ **Auto-reparación** — detecta y corrige problemas recurrentes
+- ✅ **Ejecución headless** — loops que corren con cron, systemd, o MCP sin TUI
+
+### 🧱 Bloques fundamentales
+
+| Primitiva | Rol en el Loop |
+|-----------|----------------|
+| **Scheduling** | Disparo en cadencia (cron, systemd, automations) |
+| **Worktrees** | Ramas Git aisladas para cambios riesgosos |
+| **Skills** | Conocimiento persistente del proyecto |
+| **Plugins / MCP** | Conexión a herramientas reales |
+| **Sub-agentes** | Split maker/checker para calidad |
+| **State / Memory** | Estado durable fuera de cualquier conversación |
+
+### 🚀 Loop Engineering con OpenCode
+
+OpenCode permite loops de varias maneras:
+
+#### 1. Loop nativo con `/loop`
+
+El comando `/loop` (disponible vía plugins como opencode-ralph-loop o goal-plugin) hace que el agente se auto-continúe hasta completar la tarea:
+
+```
+/loop Implementar login con Google OAuth siguiendo @docs/auth.md
+```
+
+El loop:
+1. Arranca la implementación
+2. Cuando termina un paso, detecta si quedan tareas pendientes
+3. Se reactiva automáticamente
+4. Sigue hasta completar o bloquearse
+5. Documenta blockers si no puede avanzar
+
+#### 2. Loop headless con cron + `opencode run`
+
+```bash
+# Triage diario del codebase
+0 7 * * * cd /ruta/proyecto && opencode run "Run triage on uncommitted changes. Read STATE.md. Update priority list. No auto-fix."
+
+# Verificación de dependencias semanal
+0 9 * * 1 cd /ruta/proyecto && opencode run "Check for outdated dependencies and known vulnerabilities. Report findings."
+```
+
+#### 3. loop-engineering (cobusgreyling)
+
+El repo [github.com/cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering) provee herramientas CLI:
+
+```bash
+# Inicializar loop en un proyecto
+npx @cobusgreyling/loop-init . --pattern daily-triage --tool opencode
+
+# Auditar readiness del loop (score 0-100)
+npx @cobusgreyling/loop-audit . --suggest
+
+# Estimar costos
+npx @cobusgreyling/loop-cost --pattern daily-triage --level L1 --cadence 1d
+```
+
+### 🧩 Patrones de loop comunes
+
+| Patrón | Cadencia | Descripción |
+|--------|----------|-------------|
+| **Daily Triage** | 1d | Revisa cambios, issues, deuda técnica, actualiza STATE.md |
+| **CI Sweeper** | 5m | Detecta fallos en CI, los clasifica y asigna |
+| **Dependency Patrol** | 1w | Busca dependencias obsoletas o vulnerables |
+| **Architecture Audit** | 1w | Revisa consistencia arquitectónica |
+| **Auto-Fix Loop** | on-demand | Detecta, aísla en worktree, corrige, verifica, mergea |
+| **Goal Loop** | on-demand | /goal mantiene un objetivo hasta completarlo |
+
+### ⚠️ Safety en loops
+
+- **Semana 1: report only** — no auto-fix, no auto-merge. Leé lo que el loop escribe
+- **Circuit breaker** — max iteraciones, mismo error N veces seguidas, budget de tokens
+- **Worktrees** — cambios aislados hasta que un humano o verifier los apruebe
+- **Budget control** — loop-cost + circuit breaker contra runaway costs
+
+---
+
+## 🧠 RAG en OpenCode — Memoria persistente y contexto aumentado
+
+**RAG (Retrieval-Augmented Generation)** permite que OpenCode busque información relevante en una base de conocimiento antes de responder. Es memoria de largo plazo para tu AI.
+
+### ❓ ¿Para qué sirve?
+
+Sin RAG, OpenCode solo ve el contexto de la conversación actual. Con RAG:
+
+- ✅ **Memoria entre sesiones** — recordá decisiones pasadas, specs, patrones de proyecto
+- ✅ **Documentación siempre fresca** — buscá en tu wiki, docs, READMEs al vuelo
+- ✅ **Codebase grande** — no necesitás tener todo en contexto, buscás solo lo relevante
+- ✅ **Knowledge base corporativa** — conectá a manuals, runbooks, policies
+- ✅ **Specs searchables** — encontrá requirements sin tenerlos en el prompt
+
+### 🛠️ Opciones de RAG para OpenCode
+
+#### 1. MCP Memory Server (la más simple)
+
+El MCP Server de Memory da persistencia entre sesiones:
+
+```json
+{
+  "mcpServers": {
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    }
+  }
+}
+```
+
+Usalo en conversación:
+```
+# Guardar información importante
+Remember that the auth module uses JWT with refresh tokens stored in Redis.
+
+# Recuperar después
+What did we decide about the auth architecture?
+```
+
+#### 2. opencode-memory (MCPMarket)
+
+**Opencode Memory** es un memory layer local-first que indexa wikis markdown con búsqueda híbrida:
+
+Características:
+- Indexación continua de archivos markdown
+- Búsqueda híbrida (semántica + keyword)
+- Estructuras de proyecto (milestones, epics, tasks)
+- Local-first — tus datos no salen de tu máquina
+
+#### 3. opencode-local-rag (OthmanB)
+
+Stack completo local: FastAPI + SentenceTransformers + Qdrant:
+
+```bash
+# 1. Embedder (FastAPI + BGE embeddings)
+pip install -r requirements.txt
+uvicorn app:app --port 8010
+
+# 2. Qdrant (vector DB)
+docker run --rm -p 6333:6333 qdrant/qdrant:latest
+
+# 3. Plugin OpenCode
+cd opencode-rag-local && npm run setup
+```
+
+Comandos disponibles:
+
+| Comando | Descripción |
+|---------|-------------|
+| `rag_search <query>` | Buscar en la base vectorial |
+| `rag_upsert <id> <text>` | Insertar/actualizar documentos |
+| `rag_ingest <path>` | Indexar archivos desde disco |
+| `rag_reindex` | Reconstruir la colección desde cero |
+
+#### 4. RAG vía MCP + servicios externos
+
+Podés conectar cualquier vector store via MCP:
+
+```json
+{
+  "mcpServers": {
+    "rag-pipeline": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@cobusgreyling/loop-mcp-server"]
+    }
+  }
+}
+```
+
+O usar herramientas como LlamaIndex para crear pipelines RAG custom que alimenten a OpenCode.
+
+### 💡 Buenas prácticas con RAG
+
+- **Indexá lo que usás** — no indexes todo el repo, solo docs, specs, y patrones recurrentes
+- **Chunking inteligente** — dividí documentos en fragmentos de ~500 tokens con overlap
+- **Metadata rica** — agregá tags, fecha, y fuente a cada documento para filtrar mejor
+- **Refresh periódico** — reindexá cuando cambien las fuentes (podés loopearlo con cron)
+- **Híbrido > solo semántico** — combiná búsqueda semántica con keyword (BM25) para mejores resultados
+
+---
 
 ## 🧩 Mejores Skills y MCP Servers para OpenCode
 
