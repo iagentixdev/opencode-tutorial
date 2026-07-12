@@ -626,6 +626,7 @@ openspec update
 
 # Configurar perfil (default o expanded)
 openspec config profile
+```
 
 ---
 
